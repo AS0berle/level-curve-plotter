@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class PointAggregator {
 	
-	private CheapBivariateFunction mathFunction;
+	private BivariateFunction mathFunction;
 	private double initialZ;
 	private double endZ;
 	private double zIncrement;
@@ -19,7 +19,7 @@ public class PointAggregator {
 	private double xyIncrement;
 	private double xyPrecision;
 	
-	public PointAggregator(CheapBivariateFunction function, double initialZ, double endZ, double zIncrement, double minX, double maxX, double minY, double maxY, double xyIncrement, double precision) {
+	public PointAggregator(BivariateFunction function, double initialZ, double endZ, double zIncrement, double minX, double maxX, double minY, double maxY, double xyIncrement, double precision) {
 		mathFunction = function;
 		this.initialZ = initialZ;
 		this.endZ = endZ;
@@ -32,12 +32,12 @@ public class PointAggregator {
 		xyPrecision = precision;
 	}
 	
-	public PointAggregator(CheapBivariateFunction function, double initialZ, double endZ, double zIncrement, double minX, double maxX, double minY, double maxY, double xyIncrement) {
-		this(function, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement, .001);
+	public PointAggregator(BivariateFunction function, double initialZ, double endZ, double zIncrement, double minX, double maxX, double minY, double maxY, double xyIncrement) {
+		this(function, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement, .01);
 		
 	}
 	
-	
+	// Tests all values of X and Y in f(x,y), and returns the coordinates that match the specified Z value within range of specified precision
 	private ArrayList<Point> getZTrace(double zConstant){
 		ArrayList<Point> zTracePoints= new ArrayList<Point>();
 		
@@ -46,6 +46,7 @@ public class PointAggregator {
 			
 				double inaccuracy = Math.abs(zConstant - mathFunction.value(i, j));
 				if(inaccuracy < xyPrecision) {
+					// Rounds off decimals to a few digits
 					zTracePoints.add(new Point((double)((int)(i*100000))/100000, (double)((int)(j*100000))/100000));
 				}
 				
@@ -56,7 +57,8 @@ public class PointAggregator {
 		
 		return zTracePoints;
 	}
-
+	
+	// Calls getZTrace (above) on all Z values in the specified range, stores the data in a data set for the graph to use
 	public XYSeriesCollection getAllZTraces() {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		

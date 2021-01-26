@@ -17,6 +17,7 @@ public class CoordGraph extends JFrame{
 	
 	public CoordGraph(XYSeriesCollection dataset, String function) {
 		
+		// Creates a chart using JFreeChart in order to display the data
 		JFreeChart chart = ChartFactory.createScatterPlot("Z Traces of f(x,y) = " + function, "X-Axis", "Y-Axis", dataset);
 		XYPlot plot = (XYPlot)chart.getPlot();
 		plot.setBackgroundPaint(new Color(255, 255, 255));
