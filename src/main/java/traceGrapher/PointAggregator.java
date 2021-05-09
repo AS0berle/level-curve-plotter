@@ -100,11 +100,68 @@ public class PointAggregator {
 
 		HashMap<Double, Point> points = getInitialPoints();
 		for (Entry<Double, Point> entry: points.entrySet()) {
-			dataset.addSeries(getTraceFast(entry));
+			dataset.addSeries(getTraceFast2(entry));
 		}
 		
 		
 		return dataset;
+	}
+	
+	public XYSeries getTraceFast2(Entry<Double, Point> start) {
+		Variable vars[] = {new Variable("x"), new Variable("y")};
+		
+		Vector gradient = mathFunction.gradient(vars);
+		MathObject perpComps[] = new MathObject[gradient.getSize()];
+		perpComps[0] = new Mult(-1, gradient.getField(1));
+		perpComps[1] = gradient.getField(0);
+		Vector perpGrad = new Vector(perpComps);
+		
+		HashSet<Point> set = new HashSet<Point>();
+		set.add(start.getValue());
+		boolean exit = false;
+		int loopCount = 0;
+		Point lastPoint = start.getValue();
+		XYSeries series = new XYSeries("Z = " + start.getKey());
+		do {
+			EvalVar vals[] = {new EvalVar("x", lastPoint.getX()), new EvalVar("y", lastPoint.getY())};
+			double delta[] = perpGrad.evaluate(vals);
+			double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
+			double newX = round(lastPoint.getX() + .01 * (delta[0] / mag), 6);
+			double newY = round(lastPoint.getY() + .01 * (delta[1] / mag), 6);
+			
+			EvalVar errCalc[] = {new EvalVar("x", newX), new EvalVar("y", newY)};
+			double actual = mathFunction.evaluate(errCalc);
+			double error = Math.abs(start.getKey() - actual) / start.getKey();
+			
+			/*
+			 * IN THE FUTURE, IMPLEMENT MULTIPLE SAMPLING LOCATIONS
+			 */
+			
+			
+			if (error < .03) {
+				series.add(newX, newY);
+				lastPoint = new Point(newX, newY);
+			} else {
+				System.out.println("Error too great!");
+				exit = true;
+			}
+			series.add(newX, newY);
+			if (loopCount == 1500) {
+				exit = true;
+				System.out.println("LOOP EXCEEDED LIMIT");
+			}
+			
+			loopCount += 1;
+		} while(!exit);
+		
+		
+		/*
+		for (Iterator<Point> it = set.iterator(); it.hasNext();) {
+			Point p = it.next();
+			System.out.println(p.getX() + " " + p.getY());
+		}
+		*/
+		return series;
 	}
 	
 	public XYSeries getTraceFast(Entry<Double, Point> start) {
@@ -133,7 +190,7 @@ public class PointAggregator {
 			Point newPoint = new Point(newX, newY);
 			Point setPoint = new Point(round(newX, 2), round(newY, 2));
 
-			
+
 			if(set.add(setPoint)) {
 				series.add(newX, newY);
 				lastPoint = newPoint;

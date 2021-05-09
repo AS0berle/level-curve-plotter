@@ -14,5 +14,5 @@ public abstract class MathObject {
  		
  		return new Vector(components);
  	}
-
+ 	
 }

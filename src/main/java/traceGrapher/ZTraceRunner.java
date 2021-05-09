@@ -46,7 +46,7 @@ public class ZTraceRunner {
 		
 		*/
 		
-		double initialZ = 0;
+		double initialZ = 1;
 		
 		double endZ = 4;
 		
