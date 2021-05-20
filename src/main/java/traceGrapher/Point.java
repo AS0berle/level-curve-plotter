@@ -1,5 +1,7 @@
 package traceGrapher;
 
+import java.util.Objects;
+
 public class Point {
 	
 	private double xVal;
@@ -23,9 +25,17 @@ public class Point {
 	}
 	
 	public boolean equals(Object other) {
-		if (xVal == ((Point)other).getX() && yVal == ((Point)other).getY())
-			return true;
-		return false;
+	    if (this == other)
+	        return true;
+	    if (other == null)
+	        return false;
+	    if (getClass() != other.getClass())
+	        return false;
+	    Point person = (Point) other;
+	    return Objects.equals(xVal, person.xVal) && Objects.equals(yVal, person.yVal);
 	}
-
+	
+	public int hashCode() {
+		  return Objects.hash(xVal, yVal);
+		}
 }

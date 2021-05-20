@@ -69,7 +69,18 @@ public class PointAggregator {
 	
 	// Calls getZTrace (above) on all Z values in the specified range, stores the data in a data set for the graph to use
 	public XYSeriesCollection getAllZTraces() {
-		getZTracesFast();
+		
+		
+		MathObject nano = new Power(10, 9);
+		EvalVar dumb[] = {new EvalVar("x", 0)};
+		double nanoConstant = nano.evaluate(dumb);
+		
+		long startTime = System.nanoTime();
+
+		
+		
+		
+		
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		
 		for (double i = initialZ; i <= endZ; i += zIncrement) {
@@ -81,6 +92,11 @@ public class PointAggregator {
 			
 			dataset.addSeries(series);
 		}
+		
+		
+		long endTime = System.nanoTime();
+		System.out.println("Grid Time: " + ((endTime - startTime) / nanoConstant) + " seconds");
+		
 		
 		return dataset;
 	}
@@ -96,57 +112,99 @@ public class PointAggregator {
 
 	
 	public XYSeriesCollection getZTracesFast() {
+		MathObject nano = new Power(10, 9);
+		EvalVar dumb[] = {new EvalVar("x", 0)};
+		double nanoConstant = nano.evaluate(dumb);
+		
+		long startTime = System.nanoTime();
+		
+		
+		
+		
 		XYSeriesCollection dataset = new XYSeriesCollection();
 
 		HashMap<Double, Point> points = getInitialPoints();
 		for (Entry<Double, Point> entry: points.entrySet()) {
-			dataset.addSeries(getTraceFast2(entry));
+			dataset.addSeries(getTraceFast(entry));
 		}
 		
 		
+		
+		
+		long endTime = System.nanoTime();
+		System.out.println("Gradient Time: " + ((endTime - startTime) / nanoConstant) + " seconds");
 		return dataset;
 	}
 	
-	public XYSeries getTraceFast2(Entry<Double, Point> start) {
+
+	private XYSeries getTraceFast(Entry<Double, Point> start) {
+		XYSeries series = new XYSeries("Z = " + start.getKey());
+		
+		HashSet<Point> set = new HashSet<Point>();
+		set.add(start.getValue());
+		
 		Variable vars[] = {new Variable("x"), new Variable("y")};
 		
 		Vector gradient = mathFunction.gradient(vars);
 		MathObject perpComps[] = new MathObject[gradient.getSize()];
 		perpComps[0] = new Mult(-1, gradient.getField(1));
 		perpComps[1] = gradient.getField(0);
-		Vector perpGrad = new Vector(perpComps);
+		Vector perpGrad1 = new Vector(perpComps);
 		
-		HashSet<Point> set = new HashSet<Point>();
-		set.add(start.getValue());
-		boolean exit = false;
+		perpComps[0] = gradient.getField(1);
+		perpComps[1] = new Mult(-1, gradient.getField(0));
+		Vector perpGrad2 = new Vector(perpComps);
+		
+
 		int loopCount = 0;
-		Point lastPoint = start.getValue();
-		XYSeries series = new XYSeries("Z = " + start.getKey());
+		Point lastPoint1 = start.getValue();
+		Point lastPoint2 = start.getValue();
+		
+		boolean exit = false;
+		boolean stop1 = false;
+		boolean stop2 = false;
 		do {
-			EvalVar vals[] = {new EvalVar("x", lastPoint.getX()), new EvalVar("y", lastPoint.getY())};
-			double delta[] = perpGrad.evaluate(vals);
-			double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
-			double newX = round(lastPoint.getX() + .01 * (delta[0] / mag), 6);
-			double newY = round(lastPoint.getY() + .01 * (delta[1] / mag), 6);
 			
-			EvalVar errCalc[] = {new EvalVar("x", newX), new EvalVar("y", newY)};
-			double actual = mathFunction.evaluate(errCalc);
-			double error = Math.abs(start.getKey() - actual) / start.getKey();
-			
-			/*
-			 * IN THE FUTURE, IMPLEMENT MULTIPLE SAMPLING LOCATIONS
-			 */
-			
-			
-			if (error < .03) {
-				series.add(newX, newY);
-				lastPoint = new Point(newX, newY);
-			} else {
-				System.out.println("Error too great!");
-				exit = true;
+			if (!stop1) {
+				Point currPoint1 = gradStep(perpGrad1, lastPoint1);
+				double newX = currPoint1.getX();
+				double newY = currPoint1.getY();
+				
+				if (withinAcc(start.getKey(), currPoint1, .02)) {
+					Point setPoint = new Point(round(newX, 3), round(newY, 3));
+					if(set.add(setPoint) && checkBounds(setPoint)) {
+						series.add(newX, newY);
+						lastPoint1 = currPoint1;
+					} else {
+						stop1 = true;
+					}
+				} else {
+					lastPoint1 = resetPoint(start.getKey(), gradient, currPoint1);
+					series.add(lastPoint1.getX(), lastPoint1.getY());
+				}
 			}
-			series.add(newX, newY);
-			if (loopCount == 1500) {
+			
+			if (!stop2) {
+				Point currPoint2 = gradStep(perpGrad2, lastPoint2);
+				double newX = currPoint2.getX();
+				double newY = currPoint2.getY();
+				if (withinAcc(start.getKey(), currPoint2, .02)) {
+					Point setPoint = new Point(round(newX, 3), round(newY, 3));
+					if(set.add(setPoint) && checkBounds(setPoint)) {
+						series.add(newX, newY);
+						lastPoint2 = currPoint2;
+					} else {
+						stop2 = true;
+					}
+				} else {
+					lastPoint2 = resetPoint(start.getKey(), gradient, currPoint2);
+					series.add(lastPoint2.getX(), lastPoint2.getY());
+				}				
+			}
+			
+			exit = stop1 && stop2;
+			
+			if (loopCount == 100000) {
 				exit = true;
 				System.out.println("LOOP EXCEEDED LIMIT");
 			}
@@ -154,83 +212,42 @@ public class PointAggregator {
 			loopCount += 1;
 		} while(!exit);
 		
-		
-		/*
-		for (Iterator<Point> it = set.iterator(); it.hasNext();) {
-			Point p = it.next();
-			System.out.println(p.getX() + " " + p.getY());
-		}
-		*/
 		return series;
 	}
 	
-	public XYSeries getTraceFast(Entry<Double, Point> start) {
-		Variable vars[] = {new Variable("x"), new Variable("y")};
+	private Point gradStep(Vector gradient, Point point) {
 		
-		Vector gradient = mathFunction.gradient(vars);
-		MathObject perpComps[] = new MathObject[gradient.getSize()];
-		perpComps[0] = new Mult(-1, gradient.getField(1));
-		perpComps[1] = gradient.getField(0);
-		Vector perpGrad = new Vector(perpComps);
+		EvalVar vals[] = {new EvalVar("x", point.getX()), new EvalVar("y", point.getY())};
+		double delta[] = gradient.evaluate(vals);
+		double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
+		double newX = round(point.getX() + .01 * (delta[0] / mag), 6);
+		double newY = round(point.getY() + .01 * (delta[1] / mag), 6);
 		
-		HashSet<Point> set = new HashSet<Point>();
-		set.add(start.getValue());
-		boolean addLast = true;
-		boolean exit = false;
-		int loopCount = 0;
-		Point lastPoint = start.getValue();
-		XYSeries series = new XYSeries("Z = " + start.getKey());
-		do {
-			EvalVar vals[] = {new EvalVar("x", lastPoint.getX()), new EvalVar("y", lastPoint.getY())};
-			double delta[] = perpGrad.evaluate(vals);
-			double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
-			double newX = round(lastPoint.getX() + .01 * (delta[0] / mag), 4);
-			double newY = round(lastPoint.getY() + .01 * (delta[1] / mag), 4);
-			
-			Point newPoint = new Point(newX, newY);
-			Point setPoint = new Point(round(newX, 2), round(newY, 2));
-
-
-			if(set.add(setPoint)) {
-				series.add(newX, newY);
-				lastPoint = newPoint;
-			} else {
-				exit = true;
-				System.out.println("DUPLICATE FOUND");
-			}
-			
-			
-			if (loopCount == 1500) {
-				exit = true;
-				System.out.println("LOOP EXCEEDED LIMIT");
-			}
-			
-			loopCount += 1;
-		} while(!exit);
-		
-		
-		/*
-		for (Iterator<Point> it = set.iterator(); it.hasNext();) {
-			Point p = it.next();
-			System.out.println(p.getX() + " " + p.getY());
-		}
-		*/
-		return series;
+		return new Point(newX, newY);
+	}
+	
+	private boolean checkBounds(Point p) {
+		double x = p.getX();
+		double y = p.getY();
+		if (x < maxX && x > minX && y < maxY && y > minY)
+			return true;
+		return false;
 	}
 	
 	
-	public HashMap<Double, Point> getInitialPoints() {
+	//TODO: Allow multiple sampling locations for each z trace
+	private HashMap<Double, Point> getInitialPoints() {
 		HashMap<Double, Point> points = new HashMap<Double, Point>();
 		
 		int numPoints = (int)((endZ-initialZ + 1)*(1/zIncrement));
-		double zVals[] = new double[numPoints];
+		double[] zVals = new double[numPoints];
 		for (int i = 0; i < numPoints; i++) {
 			zVals[i] = initialZ + i*zIncrement;
 		}
 
 		
 		double yLoc = (maxY + minY) / 2;		
-		EvalVar eval[] = {new EvalVar("x", minX), new EvalVar("y", yLoc)};
+		EvalVar[] eval = {new EvalVar("x", minX), new EvalVar("y", yLoc)};
 		for (double x = minX; x < maxX; x += xyIncrement) {
 			eval[0] = new EvalVar("x", x);
 			double zVal = mathFunction.evaluate(eval);
@@ -245,5 +262,57 @@ public class PointAggregator {
 		}
 		
 		return points;
+	}
+	
+	private boolean withinAcc(double zGoal, Point point, double acc) {
+		EvalVar eval[] = {new EvalVar("x", point.getX()), new EvalVar("y", point.getY())};
+		double calcVal = mathFunction.evaluate(eval);
+		
+		if (Math.abs(calcVal - zGoal) / zGoal < acc) {
+			return true;
+		}
+		return false;
+	}
+	
+	private Point resetPoint(double zGoal, Vector gradient, Point oPoint) {
+
+		EvalVar eval[] = {new EvalVar("x", oPoint.getX()), new EvalVar("y", oPoint.getY())};
+		double calcVal = mathFunction.evaluate(eval);
+		if (calcVal > zGoal) {
+			// Step opposite in direction of gradient until near zGoal again
+				MathObject[] antiFields = new MathObject[gradient.getSize()];
+				for (int i = 0; i < gradient.getSize(); i++) {
+					antiFields[i] = new Mult(-1, gradient.getField(i));
+				}
+				// antiGrad is the vector pointing opposite to the gradient
+				Vector antiGrad = new Vector(antiFields);
+				Point newP = new Point(oPoint.getX(), oPoint.getY());
+				while (!withinAcc(zGoal, newP, .01)) {
+					EvalVar vals[] = {new EvalVar("x", newP.getX()), new EvalVar("y", newP.getY())};
+					double delta[] = antiGrad.evaluate(vals);
+					double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
+					double newX = round(newP.getX() + .01 * (delta[0] / mag), 6);
+					double newY = round(newP.getY() + .01 * (delta[1] / mag), 6);
+					
+					newP = new Point(newX, newY);
+				}
+				return newP;
+				
+		} else {
+			// Step in direction of gradient until near zGoal again
+			Point newP = new Point(oPoint.getX(), oPoint.getY());
+			while (!withinAcc(zGoal, newP, .005)) {
+				EvalVar vals[] = {new EvalVar("x", newP.getX()), new EvalVar("y", newP.getY())};
+				double delta[] = gradient.evaluate(vals);
+				double mag = Math.sqrt(Math.pow(delta[0], 2) + Math.pow(delta[1], 2));
+				double newX = round(newP.getX() + .01 * (delta[0] / mag), 6);
+				double newY = round(newP.getY() + .01 * (delta[1] / mag), 6);
+				
+				newP = new Point(newX, newY);
+			}
+			return newP;
+			
+		}
+		
 	}
 }

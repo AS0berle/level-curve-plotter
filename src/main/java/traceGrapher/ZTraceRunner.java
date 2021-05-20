@@ -48,17 +48,17 @@ public class ZTraceRunner {
 		
 		double initialZ = 1;
 		
-		double endZ = 4;
+		double endZ = 5;
 		
 		double zIncrement = 1;
 		
-		double minX = -2;
+		double minX = -10;
 		
-		double maxX = 2;
+		double maxX = 10;
 		
-		double minY = -2;
+		double minY = -10;
 		
-		double maxY = 2;
+		double maxY = 10;
 		
 		double xyIncrement = .005;
 
@@ -66,27 +66,33 @@ public class ZTraceRunner {
 		Variable y = new Variable("y");
 		MathObject sq = new Power(x, 2);
 		MathObject next = new Mult(sq, new Cos(y));
-		MathObject exp = new Add(next, new Power(y));
+		MathObject exp = (new Power(y));
 		MathObject complexFunction = new Add(exp, next);
 		
-		MathObject simpleFunction = new Add(sq, new Power(y, 2));
+		MathObject simpleFunction = new Add(new Mult(.25, sq), new Mult(new Power(y, 2), .1));
 		
-		MathObject nano = new Power(10, 9);
-		EvalVar dumb[] = {new EvalVar("x", 0)};
-		double nanoConstant = nano.evaluate(dumb);
-		
-		
-		long startTime = System.nanoTime();
 		PointAggregator simplePoints = new PointAggregator(simpleFunction, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement);
 		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), simpleFunction.toString());
 		
-		graph.setSize(800,800);
-		long endTime = System.nanoTime();
+		graph.setSize(800, 800);
 
-		System.out.println("Time: " + ((endTime - startTime) / nanoConstant) + " seconds");
+
 		graph.setLocationRelativeTo(null);
 	    graph.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	    graph.setVisible(true);
+	    graph.setTitle("Gradient Graph");
+	    
+	    
+		PointAggregator simplePoints2 = new PointAggregator(simpleFunction, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement);
+		CoordGraph graph2 = new CoordGraph(simplePoints2.getAllZTraces(), simpleFunction.toString());
+		
+		graph2.setSize(800, 800);
+
+
+		graph2.setLocationRelativeTo(null);
+	    graph2.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	    graph2.setVisible(true);
+	    graph2.setTitle("Grid Graph");
 		
 	
 	}

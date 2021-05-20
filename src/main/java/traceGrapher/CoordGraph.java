@@ -25,7 +25,7 @@ public class CoordGraph extends JFrame{
 		XYPlot plot = (XYPlot)chart.getPlot();
 		plot.setBackgroundPaint(new Color(255, 255, 255));
 		
-		Shape plotShape = new Ellipse2D.Double(0, 0, 5, 5);
+		Shape plotShape = new Ellipse2D.Double(0, 0, 4, 4);
 		XYItemRenderer renderer = plot.getRenderer();
 		
 		for (int i = 0; i < dataset.getSeriesCount(); i++) {
