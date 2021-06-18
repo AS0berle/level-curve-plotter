@@ -28,6 +28,7 @@ public class Variable extends MathObject{
 	}
 	
 	public String toString() {
+		
 		return varName;
 	}
 

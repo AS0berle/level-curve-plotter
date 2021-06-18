@@ -17,6 +17,14 @@ public class Constant extends MathObject{
 	}
 	
 	public String toString() {
+		if (value == Math.E) {
+			return "e";
+		}
+		
+		if (value == Math.PI) {
+			return "PI";
+		}
+		
 		return "" + value;
 	}
 }

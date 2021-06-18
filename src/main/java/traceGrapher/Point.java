@@ -16,8 +16,16 @@ public class Point {
 		return xVal;
 	}
 	
+	public void setX(double x) {
+		xVal = x;
+	}
+	
 	public double getY() {
 		return yVal;
+	}
+	
+	public void setY(double y) {
+		yVal = y;
 	}
 	
 	public String toString() {
