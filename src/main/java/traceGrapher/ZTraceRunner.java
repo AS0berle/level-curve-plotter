@@ -1,6 +1,6 @@
 package traceGrapher;
 import javax.swing.WindowConstants;
-import java.util.Scanner;
+//import java.util.Scanner;
 import mathWrappers.*;
 
 public class ZTraceRunner {
@@ -8,12 +8,12 @@ public class ZTraceRunner {
 	public static void main(String[] args) {
 				
 		double initialZ = 0;		
-		double endZ = 4;
+		double endZ = 5;
 		double zIncrement = 1;
-		double minX = -3;
-		double maxX = 3;
-		double minY = -3;
-		double maxY = 3;
+		double minX = .1;
+		double maxX = 5;
+		double minY = -5;
+		double maxY = 5;
 		double xyIncrement = .0001;
 		
 		Variable x = new Variable("x");
@@ -27,9 +27,10 @@ public class ZTraceRunner {
 		
 		MathObject tester = new Mult(y, new Log(x));
 		
+
+
 		PointAggregator simplePoints = new PointAggregator(simple, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement);
 		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), simple.toString());
-		
 		graph.setSize(800, 800);
 		graph.setLocationRelativeTo(null);
 	    graph.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

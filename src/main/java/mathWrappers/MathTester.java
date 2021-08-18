@@ -1,5 +1,4 @@
 package mathWrappers;
-import java.lang.Math;
 public class MathTester {
 	
 	public static void main(String args[]) {
@@ -14,7 +13,7 @@ public class MathTester {
 		MathObject pl = new Add(cu, 10);
 		
 		MathObject gunction = new Div(function, pl);
-		
+		/*
 		Variable vars[] = {x, y};
 		Vector grad = function.gradient(vars);
 		
@@ -25,7 +24,10 @@ public class MathTester {
 		double[] conGrad1 = grad.evaluate(val1);
 		double[] conGrad2 = grad.evaluate(val2);
 		double[] conGrad3 = grad.evaluate(val3);
-		
+		*/
+
+
+		/*
 		System.out.println("f(x,y)=" + function);
 		System.out.println("gradient: " + grad);
 		System.out.println("Gradient at (3,2): <" + conGrad1[0] + ", " + conGrad1[1] + ">");
@@ -34,6 +36,7 @@ public class MathTester {
 		
 		System.out.println("g(x,y)=" + gunction);
 		System.out.println("gradient" + gunction.gradient(vars));
+		*/
 	}
 
 }

@@ -24,7 +24,6 @@ public class Cos extends MonoFunction{
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "cos(" + arg + ")";
 	}
 

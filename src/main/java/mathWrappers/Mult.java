@@ -31,6 +31,6 @@ public class Mult extends BiFunction{
 	}
 	
 	public String toString() {
-		return "(" + arg1 + ")*(" + arg2 + ")";
+		return "(" + arg1 + "*" + arg2 + ")";
 	}
 }

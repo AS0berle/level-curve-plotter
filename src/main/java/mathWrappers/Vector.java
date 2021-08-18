@@ -1,5 +1,5 @@
 package mathWrappers;
-import mathWrappers.MathObject;
+//import mathWrappers.MathObject;
 
 public class Vector {
 

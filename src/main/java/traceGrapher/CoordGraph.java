@@ -24,7 +24,6 @@ public class CoordGraph extends JFrame{
 		JFreeChart chart = ChartFactory.createScatterPlot("Z Traces of f(x,y) = " + function, "X-Axis", "Y-Axis", dataset);
 		XYPlot plot = (XYPlot)chart.getPlot();
 		plot.setBackgroundPaint(new Color(255, 255, 255));
-		
 		Shape plotShape = new Ellipse2D.Double(0, 0, 4, 4);
 		XYItemRenderer renderer = plot.getRenderer();
 		

@@ -18,13 +18,11 @@ public class Sin extends MonoFunction {
 
 	@Override
 	public MathObject derivative(String varName) {
-		// TODO Auto-generated method stub
 		return new Mult(arg.derivative(varName), new Cos(arg));
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "sin(" + arg + ")";
 	}
 
