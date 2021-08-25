@@ -15,12 +15,13 @@ public class ZTraceRunner {
 		double minY = -4;
 		double maxY = 4;
 		
+
 		Variable x = new Variable("x");
 		Variable y = new Variable("y");
 		MathObject sq = new Power(x, 2);
 		MathObject sqY = new Power(y, 2);
 		MathObject next = new Mult(y, new Cos(x));
-		MathObject exp = (new Power(y));
+		MathObject exp = new Power(y);
 		MathObject complex = new Add(exp, next);
 		
 		MathObject simple = new Add(sq, new Power(y, 2));
@@ -30,8 +31,8 @@ public class ZTraceRunner {
 		MathObject b1 = new Mult (4, new Mult(new Cos(x), new Cos(y)));
 	
 
-		PointAggregator simplePoints = new PointAggregator(b1, initialZ, endZ, zIncrement, minX, maxX, minY, maxY);
-		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), b1.toString());
+		PointAggregator simplePoints = new PointAggregator(complex, initialZ, endZ, zIncrement, minX, maxX, minY, maxY);
+		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), complex.toString());
 		graph.setSize(800, 800);
 		graph.setLocationRelativeTo(null);
 	    graph.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
