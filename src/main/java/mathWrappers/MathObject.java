@@ -7,12 +7,34 @@ import java.util.HashMap;
 
 public abstract class MathObject {
 
+	/**
+	 * Evaluates the MathObject given variables
+	 * 
+	 * @param vals The values for the variables
+	 * @return The value of the MathObject
+	 */
 	public abstract double evaluate(EvalVar vals[]);
 
+	/**
+	 * Calculates the derivative of the MathObject
+	 * 
+	 * @param varName The variable to derive with respect to
+	 * @return The derivative of this MathObject
+	 */
 	public abstract MathObject derivative(String varName);
 
+	/**
+	 * @return The String representation of the MathObject
+	 */
 	public abstract String toString();
 
+	/**
+	 * Calculates the gradient of the math object
+	 * 
+	 * @param vars The variables to derive with respect to
+	 * @return The gradient of the MathObject where the first field has been derived with respect to the first
+	 * 			value of vars, the second field the second value of vars, and so on
+	 */
 	public Vector gradient(Variable[] vars) {
 		MathObject components[] = new MathObject[vars.length];
 		for (int i = 0; i < components.length; i++) {
@@ -86,6 +108,14 @@ public abstract class MathObject {
 		return subObjs.get(cantorPair(0, eqStr.length() - 1));
 	}
 
+	/**
+	 * Finds the two math objects that are on either side of a given operator
+	 * 
+	 * @param eqStr The equation as a string
+	 * @param opIndex The index of the operator
+	 * @param kObjects The map of MathObjects and the parenthesis associated with it
+	 * @return A pair of MathObjects that are both operands of a given operator
+	 */
 	private static Pair<MathObject, MathObject> findMathObj(String eqStr, int opIndex, HashMap<Integer, MathObject> kObjects) {
 		// Check to the left
 		int move = 0;
@@ -162,7 +192,6 @@ public abstract class MathObject {
 					if (letters.toUpperCase().equals("PI")) {
 						right = new Constant(Math.PI);
 					} else {
-						// Handle parsing for trig/log like this chain, just checking what 'letters' spells out
 						right = new Variable(letters);
 					}
 				}
@@ -189,10 +218,15 @@ public abstract class MathObject {
 
 		}
 
-		//System.out.println(new Pair(left, right));
 		return new Pair<MathObject, MathObject>(left, right);
 	}
 
+	/**
+	 * Pairs up the indexes of all parenthesis that match
+	 * 
+	 * @param eqStr The equation as a string
+	 * @return The paired indexes of the parenthesis
+	 */
 	private static ArrayDeque<Pair<Integer, Integer>> getParenPairs(String eqStr) {
 		char eqSeq[] = eqStr.toCharArray();
 
@@ -200,7 +234,7 @@ public abstract class MathObject {
 		ArrayDeque<Pair<Integer, Integer>> parensPair = new ArrayDeque<Pair<Integer, Integer>>();
 		for (int i = 0; i < eqSeq.length; i++) {
 			if (eqSeq[i] == '(')
-				// leftParens should be read last in, first out
+				// openParens should be read last in, first out
 				openParens.add(i);
 			else if (eqSeq[i] == ')') {
 				parensPair.add(new Pair<Integer, Integer>(openParens.getLast(), i));
@@ -211,6 +245,12 @@ public abstract class MathObject {
 		return parensPair;
 	}
 
+	/**
+	 * Finds the first bivariate operator in a string
+	 * 
+	 * @param expression A string containing a bivariate operator
+	 * @return The index of the bivariate operator within expression
+	 */
 	private static int findBivariateOp(String expression) {
 		int openCount = 0;
 		int startSearchIndex = 0;
@@ -238,11 +278,23 @@ public abstract class MathObject {
 		return -1;
 	}
 
+	/**
+	 * Uses the Cantor Pairing Function (https://en.wikipedia.org/wiki/Pairing_function) to pair two positive integers
+	 * 
+	 * @param x A positive integer
+	 * @param y A positive integer
+	 * @return A positive integer unique to the input of this function
+	 */
 	private static int cantorPair(int x, int y) {
 		int w = x + y;
 		return w*(w+1)/2 + y;
 	}
 
+	/**
+	 * Inverts the Cantor Pairing Function (https://en.wikipedia.org/wiki/Pairing_function)
+	 * @param z A number known to be an output of the Cantor Pairing Function
+	 * @return The two integers that when put into the pairing function, return z
+	 */
 	private static Pair<Integer, Integer> inverseCantor(int z) {
 		int w = (int)Math.floor((Math.sqrt(8*z+1)-1) /2);
 		int t = (int)((Math.pow(w, 2) + w) / 2);

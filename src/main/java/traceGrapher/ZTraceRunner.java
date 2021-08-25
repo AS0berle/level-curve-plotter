@@ -6,19 +6,19 @@ import mathWrappers.*;
 public class ZTraceRunner {
 	
 	public static void main(String[] args) {
-				
-		double initialZ = 0;		
+		
+		double initialZ = -5;		
 		double endZ = 5;
 		double zIncrement = 1;
-		double minX = .1;
-		double maxX = 5;
-		double minY = -5;
-		double maxY = 5;
-		double xyIncrement = .0001;
+		double minX = -4;
+		double maxX = 4;
+		double minY = -4;
+		double maxY = 4;
 		
 		Variable x = new Variable("x");
 		Variable y = new Variable("y");
 		MathObject sq = new Power(x, 2);
+		MathObject sqY = new Power(y, 2);
 		MathObject next = new Mult(y, new Cos(x));
 		MathObject exp = (new Power(y));
 		MathObject complex = new Add(exp, next);
@@ -26,11 +26,12 @@ public class ZTraceRunner {
 		MathObject simple = new Add(sq, new Power(y, 2));
 		
 		MathObject tester = new Mult(y, new Log(x));
-		
 
+		MathObject b1 = new Mult (4, new Mult(new Cos(x), new Cos(y)));
+	
 
-		PointAggregator simplePoints = new PointAggregator(simple, initialZ, endZ, zIncrement, minX, maxX, minY, maxY, xyIncrement);
-		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), simple.toString());
+		PointAggregator simplePoints = new PointAggregator(b1, initialZ, endZ, zIncrement, minX, maxX, minY, maxY);
+		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), b1.toString());
 		graph.setSize(800, 800);
 		graph.setLocationRelativeTo(null);
 	    graph.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
