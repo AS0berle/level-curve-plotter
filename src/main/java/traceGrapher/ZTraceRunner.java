@@ -12,8 +12,8 @@ public class ZTraceRunner {
 		double zIncrement = 1;
 		double minX = -4;
 		double maxX = 4;
-		double minY = -4;
-		double maxY = 4;
+		double minY = -7;
+		double maxY = 7;
 		
 
 		Variable x = new Variable("x");
@@ -31,8 +31,8 @@ public class ZTraceRunner {
 		MathObject b1 = new Mult (4, new Mult(new Cos(x), new Cos(y)));
 	
 
-		PointAggregator simplePoints = new PointAggregator(complex, initialZ, endZ, zIncrement, minX, maxX, minY, maxY);
-		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), complex.toString());
+		PointAggregator simplePoints = new PointAggregator(tester, initialZ, endZ, zIncrement, minX, maxX, minY, maxY);
+		CoordGraph graph = new CoordGraph(simplePoints.getZTracesFast(), tester.toString());
 		graph.setSize(800, 800);
 		graph.setLocationRelativeTo(null);
 	    graph.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

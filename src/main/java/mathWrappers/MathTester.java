@@ -9,9 +9,11 @@ public class MathTester {
 		MathObject next = new Mult(x, y);
 		MathObject function = new Sub(sq, next);
 		
-		MathObject cu = new Power(new Mult(x, y), 3);
+		MathObject cu = new Power(new Mult(x, y), new Sin(x));
 		MathObject pl = new Add(cu, 10);
 		
+		System.out.println(cu);
+		System.out.println(cu.derivative("x"));
 		MathObject gunction = new Div(function, pl);
 		/*
 		Variable vars[] = {x, y};

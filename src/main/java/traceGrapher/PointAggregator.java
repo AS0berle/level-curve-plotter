@@ -253,6 +253,8 @@ public class PointAggregator {
 			return new Point(Double.NaN, Double.NaN);
 		}
 		
+
+		
 		double newX = round(point.getX() + stepSize * (delta[0] / mag), 4);
 		double newY = round(point.getY() + stepSize * (delta[1] / mag), 4);
 		return new Point(newX, newY);

@@ -33,7 +33,7 @@ public class CoordGraph extends JFrame{
 
 		ChartPanel panel = new ChartPanel(chart);
 		this.setContentPane(panel);
-		
+
 	}
 	
 	

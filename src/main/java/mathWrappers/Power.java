@@ -39,10 +39,12 @@ public class Power extends BiFunction{
 			MathObject self = this;
 			MathObject log = new Log(arg1);
 			MathObject expo = arg2;
-			MathObject otherTerm = new Mult(log, expo);
-			otherTerm = otherTerm.derivative(varName);
-			
-			return new Mult(self, otherTerm);
+			MathObject otherTerm = new Mult(log, expo.derivative(varName));
+			MathObject division = new Div(arg2, arg1);
+			MathObject divTerm = new Mult(arg1.derivative(varName), division);
+			MathObject internal = new Add(otherTerm, divTerm);
+	
+			return new Mult(self, internal);
 		}
 		 
 	}
