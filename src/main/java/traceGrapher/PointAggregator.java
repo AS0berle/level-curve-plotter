@@ -23,6 +23,7 @@ public class PointAggregator {
 	private double minY;
 	private double maxY;
 	private double stepSize;
+	private int roundPrecision;
 	
 	/**
 	 * Automatically calculates stepsize based on the given domain and range
@@ -46,6 +47,8 @@ public class PointAggregator {
 		this.minY = minY;
 		this.maxY = maxY;
 		stepSize = Math.sqrt(Math.pow((maxX - minX),2) + Math.pow((maxY-minY),2)) * .001;
+		roundPrecision = (int)(-1 * Math.floor(Math.log10(stepSize / 10)));
+
 	}
 
 	/**
@@ -81,10 +84,16 @@ public class PointAggregator {
 	 * @return
 	 */
 	private static double round(double value, int places) {
+		if (value != value) {
+			return value;
+		}
 		if (value == 0) {
 			return 0.0;
 		}
-	    if (places < 0) throw new IllegalArgumentException();
+	    if (places < 0) {
+			places *= -1;
+			return Math.pow(10, places) * round(value / Math.pow(10, places), 0);
+		}
 
 	    BigDecimal bd = new BigDecimal(Double.toString(value));
 	    bd = bd.setScale(places, RoundingMode.HALF_DOWN);
@@ -97,6 +106,7 @@ public class PointAggregator {
 	 * @return An XYSeriesCollection that will can be used in an XYChart to display all level curves
 	 */
 	public XYSeriesCollection getZTracesFast() {
+
 		MathObject nano = new Power(10, 9);
 		EvalVar dumb[] = {new EvalVar("x", 0)};
 		double nanoConstant = nano.evaluate(dumb);
@@ -174,7 +184,8 @@ public class PointAggregator {
 					
 					// If the new point is within 1% of the expected point, check if it has already been found
 					if (withinAcc(points.getKey(), currPoint1, .01)) {
-						Point setPoint = new Point(round(newX, 3), round(newY, 3));
+						
+						Point setPoint = new Point(round(newX, roundPrecision), round(newY, roundPrecision));
 
 						// If the point has not already been found, save it and get ready for the next iteration
 						if(set.add(setPoint) && checkBounds(setPoint)) {
@@ -208,7 +219,8 @@ public class PointAggregator {
 					double newX = currPoint2.getX();
 					double newY = currPoint2.getY();
 					if (withinAcc(points.getKey(), currPoint2, .01)) {
-						Point setPoint = new Point(round(newX, 3), round(newY, 3));
+						
+						Point setPoint = new Point(round(newX, roundPrecision), round(newY, roundPrecision));
 						if(set.add(setPoint) && checkBounds(setPoint)) {
 							series.add(newX, newY);
 							lastPoint2 = currPoint2;
@@ -255,8 +267,8 @@ public class PointAggregator {
 		
 
 		
-		double newX = round(point.getX() + stepSize * (delta[0] / mag), 4);
-		double newY = round(point.getY() + stepSize * (delta[1] / mag), 4);
+		double newX = round(point.getX() + stepSize * (delta[0] / mag), roundPrecision + 1);
+		double newY = round(point.getY() + stepSize * (delta[1] / mag), roundPrecision + 1);
 		return new Point(newX, newY);
 		
 	}
@@ -328,10 +340,10 @@ public class PointAggregator {
 							double zVal = mathFunction.evaluate(eval);
 							for (int i = 0; i <zVals.length; i++) {
 								double inaccuracy = Math.abs(zVals[i] - zVal) /(1 + Math.abs(zVals[i]));
-
 								// If the point is very close to one of the Z values we're looking for, save it
 								if (inaccuracy < .001) {
-									points.get(zVals[i]).add(new Point(round(point1.getX(), 3), round(point1.getY(), 3)));
+									// old 3 3 
+									points.get(zVals[i]).add(new Point(round(point1.getX(), roundPrecision), round(point1.getY(), roundPrecision)));
 									stop1 = true;
 
 
@@ -345,8 +357,9 @@ public class PointAggregator {
 							if (!(delta[0] == 0 && delta[1] == 0) && delta[0] == delta[0] && delta[1] == delta[1]) {
 								// Step in the direction of the gradient, and get ready to repeat
 								point1 = gradStep(gradient, point1);
-								point1.setX(round(point1.getX(), 4));
-								point1.setY(round(point1.getY(), 4));
+								// old 4 4
+								point1.setX(round(point1.getX(), roundPrecision + 1));
+								point1.setY(round(point1.getY(), roundPrecision + 1));
 							} else {
 								stop1 = true;
 							}
@@ -363,7 +376,8 @@ public class PointAggregator {
 							for (int i = 0; i <zVals.length; i++) {
 								double inaccuracy = Math.abs(zVals[i] - zVal) /(1 + Math.abs(zVals[i]));
 								if (inaccuracy < .001) {
-									points.get(zVals[i]).add(new Point(round(point2.getX(), 3), round(point2.getY(), 3)));
+									// old 3 3
+									points.get(zVals[i]).add(new Point(round(point2.getX(), roundPrecision), round(point2.getY(), roundPrecision)));
 									stop2 = true;
 
 
@@ -376,8 +390,9 @@ public class PointAggregator {
 							
 							if (!(delta2[0] == 0 && delta2[1] == 0) && delta2[0] == delta2[0] && delta2[1] ==delta2[1]) {
 								point2 = gradStep(antiGrad, point2);
-								point2.setX(round(point2.getX(), 4));
-								point2.setY(round(point2.getY(), 4));
+								// old 4 4
+								point2.setX(round(point2.getX(), roundPrecision + 1));
+								point2.setY(round(point2.getY(), roundPrecision + 1));
 							} else {
 								stop2 = true;
 							}
