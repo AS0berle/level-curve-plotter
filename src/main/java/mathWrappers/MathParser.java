@@ -77,7 +77,7 @@ public class MathParser{
             tokens.pop();
             return new Tan(operand(tokens));
         }
-        else if (safePeek(tokens).toLowerCase().equals("ln")) {
+        else if (safePeek(tokens).toLowerCase().equals("ln") || safePeek(tokens).toLowerCase().equals("log[e]") ) {
             tokens.pop();
             return new Log(operand(tokens));
         }
@@ -147,10 +147,12 @@ public class MathParser{
         return expr(tokenize(input));
     }
 
+    
     public static void main(String[] args) {
         MathParser p = new MathParser();
-        MathObject result = p.parse("x*(2+3)^y");
+        MathObject result = p.parse("x^sin(x)");
         MathObject result2 = p.parse(result.toString());
         System.out.println(result2.toString());
     }
+    
 }

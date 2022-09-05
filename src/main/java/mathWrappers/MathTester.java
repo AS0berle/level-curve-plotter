@@ -15,6 +15,10 @@ public class MathTester {
 		System.out.println(cu);
 		System.out.println(cu.derivative("x"));
 		MathObject gunction = new Div(function, pl);
+
+        MathParser p = new MathParser();
+        MathObject parsed = p.parse(cu.toString());
+        System.out.println(parsed);
 		/*
 		Variable vars[] = {x, y};
 		Vector grad = function.gradient(vars);
